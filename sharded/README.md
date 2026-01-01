@@ -6,21 +6,21 @@ ClickHouse cluster with Kafka ingestion, sharding by symbol, and replication for
 
 ```
 ┌────────────────────────────────────────────────────────────────────┐
-│                        Docker Network (ch-net)                      │
-│                                                                     │
+│                        Docker Network (ch-net)                     │
+│                                                                    │
 │  ┌─────────────────┐              ┌─────────────────┐              │
 │  │  Kafka (KRaft)  │              │     Keeper      │              │
 │  │  :9092 / :9093  │              │      :9181      │              │
 │  └────────┬────────┘              └────────┬────────┘              │
-│           │                                │                        │
-│           ▼                                ▼                        │
+│           │                                │                       │
+│           ▼                                ▼                       │
 │  ┌─────────────────────────────────────────────────────────────┐   │
 │  │                    cluster_2s_2r                            │   │
 │  │                                                             │   │
 │  │   Shard 1                    │         Shard 2              │   │
 │  │   (BTC/USD, ETH/USD)         │         (DOGE/USD, SOL/USD)  │   │
 │  │                              │                              │   │
-│  │   ch-1a ◄──────► ch-1b      │         ch-2a ◄──────► ch-2b │   │
+│  │   ch-1a ◄──────► ch-1b       │         ch-2a ◄──────► ch-2b │   │
 │  │   :8123    sync   :8124      │         :8125    sync  :8126 │   │
 │  │                              │                              │   │
 │  └─────────────────────────────────────────────────────────────┘   │
@@ -48,7 +48,7 @@ trades (Distributed) ─── routes by cityHash64(symbol)
         ▼                          ▼
 trades_local (Shard 1)    trades_local (Shard 2)
         │                          │
-        ▼ [ohlcv_1m_mv]           ▼ [ohlcv_1m_mv]
+        ▼ [ohlcv_1m_mv]            ▼ [ohlcv_1m_mv]
 ohlcv_1m_local            ohlcv_1m_local
         │                          │
         └──────────┬───────────────┘
@@ -116,13 +116,13 @@ GROUP BY node;
 ## Connection Details
 
 | Service | HTTP Port | Native Port | Description |
-|---------|-----------|-------------|-------------|
-| ch-1a | 8123 | 9000 | Shard 1, Replica A |
-| ch-1b | 8124 | 9001 | Shard 1, Replica B |
-| ch-2a | 8125 | 9002 | Shard 2, Replica A |
-| ch-2b | 8126 | 9003 | Shard 2, Replica B |
-| Kafka | - | 9093 | External producer access |
-| Keeper | - | 9181 | ClickHouse coordination |
+|---------|-----------|-------------|--------------------------|
+| ch-1a   | 8123      | 9000        | Shard 1, Replica A       |
+| ch-1b   | 8124      | 9001        | Shard 1, Replica B       |
+| ch-2a   | 8125      | 9002        | Shard 2, Replica A       |
+| ch-2b   | 8126      | 9003        | Shard 2, Replica B       |
+| Kafka   | -         | 9093        | External producer access |
+| Keeper  | -         | 9181        | ClickHouse coordination  |
 
 ## Sharding
 
