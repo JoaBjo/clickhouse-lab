@@ -1,0 +1,111 @@
+services:
+  kafka:
+    image: apache/kafka:latest
+    hostname: kafka
+    container_name: kafka
+    ports:
+      - "9092:9092"
+      - "9093:9093"
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9094,EXTERNAL://:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,EXTERNAL://localhost:9093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9094
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    networks:
+      - ch-net
+
+  keeper:
+    image: clickhouse/clickhouse-keeper:latest
+    hostname: keeper
+    container_name: keeper
+    ports:
+      - "9181:9181"
+    volumes:
+      - ./config/keeper.xml:/etc/clickhouse-keeper/keeper_config.xml:ro
+      - keeper-data:/var/lib/clickhouse-keeper
+    networks:
+      - ch-net
+
+  # Shard 1, Replica 1
+  ch-1a:
+    image: clickhouse/clickhouse-server:latest
+    hostname: ch-1a
+    container_name: ch-1a
+    ports:
+      - "8123:8123"
+      - "9000:9000"
+    volumes:
+      - ./config/ch-1a.xml:/etc/clickhouse-server/config.d/config.xml:ro
+      - ./config/users.xml:/etc/clickhouse-server/users.d/users.xml:ro
+      - ch-1a-data:/var/lib/clickhouse
+    networks:
+      - ch-net
+    depends_on:
+      - keeper
+
+  # Shard 1, Replica 2
+  ch-1b:
+    image: clickhouse/clickhouse-server:latest
+    hostname: ch-1b
+    container_name: ch-1b
+    ports:
+      - "8124:8123"
+      - "9001:9000"
+    volumes:
+      - ./config/ch-1b.xml:/etc/clickhouse-server/config.d/config.xml:ro
+      - ./config/users.xml:/etc/clickhouse-server/users.d/users.xml:ro
+      - ch-1b-data:/var/lib/clickhouse
+    networks:
+      - ch-net
+    depends_on:
+      - keeper
+
+  # Shard 2, Replica 1
+  ch-2a:
+    image: clickhouse/clickhouse-server:latest
+    hostname: ch-2a
+    container_name: ch-2a
+    ports:
+      - "8125:8123"
+      - "9002:9000"
+    volumes:
+      - ./config/ch-2a.xml:/etc/clickhouse-server/config.d/config.xml:ro
+      - ./config/users.xml:/etc/clickhouse-server/users.d/users.xml:ro
+      - ch-2a-data:/var/lib/clickhouse
+    networks:
+      - ch-net
+    depends_on:
+      - keeper
+
+  # Shard 2, Replica 2
+  ch-2b:
+    image: clickhouse/clickhouse-server:latest
+    hostname: ch-2b
+    container_name: ch-2b
+    ports:
+      - "8126:8123"
+      - "9003:9000"
+    volumes:
+      - ./config/ch-2b.xml:/etc/clickhouse-server/config.d/config.xml:ro
+      - ./config/users.xml:/etc/clickhouse-server/users.d/users.xml:ro
+      - ch-2b-data:/var/lib/clickhouse
+    networks:
+      - ch-net
+    depends_on:
+      - keeper
+
+networks:
+  ch-net:
+
+volumes:
+  keeper-data:
+  ch-1a-data:
+  ch-1b-data:
+  ch-2a-data:
+  ch-2b-data:

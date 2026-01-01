@@ -1,0 +1,24 @@
+<clickhouse>
+    <listen_host>0.0.0.0</listen_host>
+    <macros>
+        <shard>1</shard>
+        <replica>ch-1b</replica>
+    </macros>
+    <zookeeper>
+        <node><host>keeper</host><port>9181</port></node>
+    </zookeeper>
+    <remote_servers>
+        <cluster_2s_2r>
+            <shard>
+                <internal_replication>true</internal_replication>
+                <replica><host>ch-1a</host><port>9000</port></replica>
+                <replica><host>ch-1b</host><port>9000</port></replica>
+            </shard>
+            <shard>
+                <internal_replication>true</internal_replication>
+                <replica><host>ch-2a</host><port>9000</port></replica>
+                <replica><host>ch-2b</host><port>9000</port></replica>
+            </shard>
+        </cluster_2s_2r>
+    </remote_servers>
+</clickhouse>
