@@ -18,7 +18,6 @@ ClickHouse cluster with Kafka ingestion, sharding by symbol, and replication for
 │  │                    cluster_2s_2r                            │   │
 │  │                                                             │   │
 │  │   Shard 1                    │         Shard 2              │   │
-│  │   (BTC/USD, ETH/USD)         │         (DOGE/USD, SOL/USD)  │   │
 │  │                              │                              │   │
 │  │   ch-1a ◄──────► ch-1b       │         ch-2a ◄──────► ch-2b │   │
 │  │   :8123    sync   :8124      │         :8125    sync  :8126 │   │
